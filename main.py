@@ -1,7 +1,7 @@
 # Импортируем необходимые модули
 import multiprocessing  # Для параллельных вычислений
 import sys  # Для работы с аргументами командной строки
-
+import os   # Для получения информации о системе
 
 # Функция для чтения матрицы из файла
 def read_matrix(filename):
@@ -20,6 +20,8 @@ def read_matrix(filename):
         for line in f:
             # Убираем лишние пробелы и символы перевода строки
             line = line.strip()
+            if not line:
+                continue  # Пропускаем пустые строки
             # Разделяем строку на отдельные элементы по пробелам
             str_numbers = line.split()
             # Преобразуем каждую строку в число (float)
@@ -100,9 +102,16 @@ def main():
     for index in indices:
         args.append((index, A, B, intermediate_file, lock))  # Добавляем необходимые аргументы
 
+    # Определяем количество процессов автоматически
+    # Используем количество процессоров в системе
+    num_cores = multiprocessing.cpu_count()
 
-    # Определяем количество процессов
-    num_processes = 4  # Задаем заранее количество процессов, например, 4
+    # Можно ограничить максимальное количество процессов, если это необходимо
+    max_processes = 8  # Например, не более 8 процессов
+    num_processes = min(num_cores, max_processes)
+
+    print(f"Количество ядер в системе: {num_cores}")
+    print(f"Будет использовано процессов: {num_processes}")
 
     # Создаем пул процессов для параллельного выполнения
     with multiprocessing.Pool(processes=num_processes) as pool:
